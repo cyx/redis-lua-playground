@@ -1,0 +1,8 @@
+INSTALL
+  
+    $ dep install # assuming you're in a sandbox
+
+RUNNING
+
+    $ nohup ./bin/redis-server &
+    $ ruby lib/lua.rb
