@@ -41,4 +41,12 @@ if __FILE__ == $0
   puts Lua.call("get-rank", 2, "Bid:1:3:3", "Rank:3").inspect
   puts Lua.call("get-rank", 2, "Bid:1:4:3", "Rank:3").inspect
   puts Lua.call("get-rank", 2, "Bid:1:5:3", "Rank:3").inspect
+
+  threads = 1000.times.map do
+    Thread.new do
+      puts Lua.call("create-bid", 2, "Bid:1:2:3", "Rank:3", "15").inspect
+    end
+  end
+
+  threads.each(&:join)
 end
