@@ -1,21 +1,20 @@
 -- COMMAND: create-bid
 --
 -- KEYS[1]: Bid:<campaign_id>:<ad_id>:<keyword_id>
--- KEYS[2]: Ranks:<keyword_id>
+-- KEYS[2]: Ranks:<keyword_id>:members
+-- KEYS[3]: Ranks:<keyword_id>:ids
+-- KEYS[4]: Ranks:<keyword_id>:scores
+--
 -- ARGV[1]: amount, e.g. 15 (in 1000 precision)
+-- ARGV[2]: inverted timestamp
 
-local UPPER   = 2 ^ 32
-local bid_id  = KEYS[1]
-local members = KEYS[2] .. ":members"
-local ids     = KEYS[2] .. ":ids"
-local scores  = KEYS[2] .. ":scores"
-local amount  = ARGV[1]
-
-function generate_member(id)
-  local stamp = redis.call("incr", "Ranks:stamp")
-
-  return tostring(UPPER - stamp) .. ":" .. id
-end
+local bid_id    = KEYS[1]
+local members   = KEYS[2]
+local ids       = KEYS[3]
+local scores    = KEYS[4]
+local amount    = ARGV[1]
+local timestamp = ARGV[2]
+local newmember = timestamp .. ":" .. bid_id
 
 function del_rank(id, member)
   redis.call("ZREM", scores, member)
@@ -24,11 +23,9 @@ function del_rank(id, member)
 end
 
 function add_rank(id, score)
-  local member = generate_member(id)
-
-  redis.call("HSET", members, id, member)
-  redis.call("HSET", ids, member, id)
-  redis.call("ZADD", scores, score, member)
+  redis.call("HSET", members, id, newmember)
+  redis.call("HSET", ids, newmember, id)
+  redis.call("ZADD", scores, score, newmember)
 end
 
 function get_rank(id)

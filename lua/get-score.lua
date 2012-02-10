@@ -1,4 +1,4 @@
--- COMMAND: get-rank
+-- COMMAND: get-score
 --
 -- KEYS[1]: Bid:<campaign_id>:<ad_id>:<keyword_id>
 -- KEYS[2]: Rank:<keyword id>:members
@@ -10,12 +10,12 @@ local members = KEYS[2]
 local ids     = KEYS[3]
 local scores  = KEYS[4]
 
-function get_rank(id)
+function get_score(id)
   local member = redis.call("HGET", members, id)
 
   if member then
-    return tonumber(redis.call("ZREVRANK", scores, member)) + 1
+    return redis.call("ZSCORE", scores, member)
   end
 end
 
-return get_rank(bid_id)
+return get_score(bid_id)
