@@ -18,7 +18,7 @@ module Lua
   end
 
   def self.redis
-    @redis ||= Redis.connect
+    @redis ||= Redis.current
   end
 
   def self.create_bid(bid_id, rank_prefix, amount)
